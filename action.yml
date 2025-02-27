@@ -24,6 +24,6 @@ runs:
     SETUP_COMMAND: ${{ inputs.setup-command }}
   entrypoint: "/opt/test-runner/bin/run_autograding.sh"
   args:
-    - "--timeout=${{ env.timeout }}"
-    - "--max-score=${{ env.max-score }}"
-    - "--setup-command=${{ env.setup-command }}"
+    - "--timeout=${{ inputs.timeout }}"
+    - "--max-score=${{ inputs.max-score }}"
+    - "--setup-command=${{ inputs.setup-command }}"
