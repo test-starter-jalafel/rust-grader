@@ -1,7 +1,27 @@
 use clap::{Arg, Command};
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 use std::process::{self, Command as ProcessCommand};
+
+
+#[derive(Serialize, Deserialize)]
+struct TestResult {
+    name: String,
+    status: String,
+    message: Option<String>,
+    line_no: Option<u32>,
+    execution_time: String,
+    score: i32,
+}
+
+#[derive(Serialize, Deserialize)]
+struct Results {
+    version: u32,
+    status: String,
+    tests: Vec<TestResult>,
+}
 
 fn main() {
     let matches = Command::new("Run Tests")
@@ -92,10 +112,42 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
         .current_dir(input)
         .output()
         .expect("Failed to execute cargo test");
+        
+    // Parse the JSON output from cargo test
+    let test_results: Value = serde_json::from_slice(&test_output.stdout).expect("Failed to parse JSON");
 
-    // Write the results to the output directory
+    // Transform the test results into the desired format
+    let mut tests = Vec::new();
+    if let Some(events) = test_results.get("events").and_then(|e| e.as_array()) {
+        for event in events {
+            if let Some(test) = event.get("test") {
+                let name = test.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
+                let status = test.get("status").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
+                let execution_time = test.get("exec_time").and_then(|t| t.as_str()).unwrap_or("0ms").to_string();
+                let score = if status == "pass" { 1 } else { 0 };
+
+                tests.push(TestResult {
+                    name,
+                    status,
+                    message: None,
+                    line_no: None,
+                    execution_time,
+                    score,
+                });
+            }
+        }
+    }
+
+    let results = Results {
+        version: 1,
+        status: if tests.iter().all(|t| t.status == "pass") { "pass".to_string() } else { "fail".to_string() },
+        tests,
+    };
+
+    // Write the transformed results to the output directory
     let results_path = PathBuf::from(output).join("results.json");
-    fs::write(&results_path, test_output.stdout).expect("Unable to write results.json");
+    let results_json = serde_json::to_string_pretty(&results).expect("Failed to serialize results");
+    fs::write(&results_path, results_json).expect("Unable to write results.json");
 
     // Print the results
     println!("Test results written to: {}", results_path.display());
