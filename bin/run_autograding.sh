@@ -37,7 +37,7 @@ fi
 # Compile the Rust file
 cargo build --release --manifest-path "$root/Cargo.toml"
 
-timeout "$TIMEOUT" "$root/target/release/run_autograding" ./exercises/concept/assembly-line ./autograding_output/ "$MAX_SCORE" > autograding_output/results.log 2>&1
+timeout "$TIMEOUT" "$root/target/release/run_autograding" ./ ./autograding_output/ "$MAX_SCORE" > autograding_output/results.log 2>&1
 exit_status=$?
 if [ $exit_status -eq 124 ]; then
   echo "The command took longer than $TIMEOUT seconds to execute. Please increase the timeout to avoid this error."
