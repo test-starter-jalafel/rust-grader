@@ -156,6 +156,7 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
         version: 1,
         status: status.to_string(),
         tests,
+        max_score
     };
 
     // Write the transformed results to the output directory
