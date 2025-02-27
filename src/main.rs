@@ -47,12 +47,6 @@ fn main() {
                 .index(3)
                 .value_parser(clap::value_parser!(i32)),
         )
-        .arg(
-            Arg::new("cargo_args")
-                .help("Additional arguments to pass to cargo test")
-                .num_args(0..=10)
-                .required(false),
-        )
         .get_matches();
 
     let input_dir = matches.get_one::<String>("input").unwrap();
@@ -112,14 +106,15 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
         .current_dir(input)
         .output()
         .expect("Failed to execute cargo test");
-        
-    // Parse the JSON output from cargo test
-    let test_results: Value = serde_json::from_slice(&test_output.stdout).expect("Failed to parse JSON");
+
+    // Print the raw JSON output for debugging
+    let raw_output = String::from_utf8_lossy(&test_output.stdout);
+    println!("Raw JSON output from cargo test:\n{}", raw_output);
 
     // Transform the test results into the desired format
     let mut tests = Vec::new();
-    if let Some(events) = test_results.get("events").and_then(|e| e.as_array()) {
-        for event in events {
+    for line in raw_output.lines() {
+        if let Ok(event) = serde_json::from_str::<Value>(line) {
             if let Some(test) = event.get("test") {
                 let name = test.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
                 let status = test.get("status").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
