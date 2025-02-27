@@ -156,7 +156,6 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
     let results = Results {
         version: 1,
         status: status.to_string(),
-        max_score: max_score,
         tests,
     };
 
