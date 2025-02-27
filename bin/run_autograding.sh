@@ -44,4 +44,7 @@ if [ $exit_status -eq 124 ]; then
   echo '{"status": "error", "message": "The command timed out"}' > autograding_output/results.json
 fi
 
-echo "result=$(cat ./autograding_output/results.json | jq -sRr @base64)" >> "$GITHUB_OUTPUT"
+echo "Printing results.json:"
+cat autograding_output/results.json
+
+echo "result=$(jq -c . autograding_output/results.json | jq -sRr @base64)" >> "$GITHUB_OUTPUT"
