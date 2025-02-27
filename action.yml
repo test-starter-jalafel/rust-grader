@@ -18,6 +18,10 @@ outputs:
 runs:
   using: docker
   image: Dockerfile
+  env:
+    TIMEOUT: ${{ inputs.timeout }}
+    MAX_SCORE: ${{ inputs.max-score }}
+    SETUP_COMMAND: ${{ inputs.setup-command }}
 jobs:
   run-tests:
     name: "Run Tests"
