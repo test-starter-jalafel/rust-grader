@@ -22,12 +22,8 @@ runs:
     TIMEOUT: ${{ inputs.timeout }}
     MAX_SCORE: ${{ inputs.max-score }}
     SETUP_COMMAND: ${{ inputs.setup-command }}
-jobs:
-  run-tests:
-    name: "Run Tests"
-    runs-on: ubuntu-22.04
-    entrypoint: "/opt/test-runner/bin/run_autograding.sh"
-    args:
-      - "--timeout=${{ env.timeout }}"
-      - "--max-score=${{ env.max-score }}"
-      - "--setup-command=${{ env.setup-command }}"
+  entrypoint: "/opt/test-runner/bin/run_autograding.sh"
+  args:
+    - "--timeout=${{ env.timeout }}"
+    - "--max-score=${{ env.max-score }}"
+    - "--setup-command=${{ env.setup-command }}"
