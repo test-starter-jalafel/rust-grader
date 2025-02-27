@@ -13,7 +13,7 @@ struct TestResult {
     message: Option<String>,
     line_no: Option<u32>,
     execution_time: String,
-    // score: i32,
+    score: i32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -143,6 +143,7 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
                         message: None,
                         line_no: None,
                         execution_time,
+                        score
                     });
                 }
                 _ => {}
