@@ -21,6 +21,7 @@ struct Results {
     version: u32,
     status: String,
     tests: Vec<TestResult>,
+    max_score: i32,
 }
 
 fn main() {
