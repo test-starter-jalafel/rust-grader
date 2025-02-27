@@ -120,6 +120,9 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
         if let Ok(event) = serde_json::from_str::<Value>(line) {
             match event.get("type").and_then(|t| t.as_str()) {
                 Some("test") => {
+                    if event.get("event").and_then(|e| e.as_str()) == Some("started") {
+                        continue;
+                    }
                     let name = event.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
                     let status = event.get("event").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
                     let execution_time = event.get("exec_time").and_then(|t| t.as_str()).unwrap_or("0ms").to_string();
@@ -140,9 +143,10 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
                 }
                 Some("suite") => {
                     if event.get("event").and_then(|e| e.as_str()) == Some("started") {
-                        if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
-                            total_tests += test_count;
-                        }
+                        continue;
+                    }
+                    if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
+                        total_tests += test_count;
                     }
                 }
                 _ => {}
@@ -151,7 +155,6 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
     }
 
     let status = if passed_tests == total_tests { "pass" } else { "fail" };
-    let score = (passed_tests as f32 / total_tests as f32 * max_score as f32).round() as i32;
 
     let results = Results {
         version: 1,
