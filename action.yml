@@ -28,6 +28,6 @@ jobs:
     runs-on: ubuntu-22.04
     entrypoint: "/opt/test-runner/bin/run_autograding.sh"
     args:
-    - "--timeout=${{ inputs.timeout }}"
-    - "--max-score=${{ inputs.max-score }}"
-    - "--setup-command=${{ inputs.setup-command }}"
+      - "--timeout=${{ inputs.timeout }}"
+      - "--max-score=${{ inputs.max-score }}"
+      - "--setup-command=${{ inputs.setup-command }}"
