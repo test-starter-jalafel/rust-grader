@@ -113,29 +113,47 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
 
     // Transform the test results into the desired format
     let mut tests = Vec::new();
+    let mut total_tests = 0;
+    let mut passed_tests = 0;
+
     for line in raw_output.lines() {
         if let Ok(event) = serde_json::from_str::<Value>(line) {
-            if let Some(test) = event.get("test") {
-                let name = test.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
-                let status = test.get("status").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
-                let execution_time = test.get("exec_time").and_then(|t| t.as_str()).unwrap_or("0ms").to_string();
-                let score = if status == "pass" { 1 } else { 0 };
+            match event.get("type").and_then(|t| t.as_str()) {
+                Some("test") => {
+                    let name = event.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
+                    let status = event.get("event").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
+                    let execution_time = event.get("exec_time").and_then(|t| t.as_str()).unwrap_or("0ms").to_string();
+                    let score = if status == "ok" { 1 } else { 0 };
 
-                tests.push(TestResult {
-                    name,
-                    status,
-                    message: None,
-                    line_no: None,
-                    execution_time,
-                    score,
-                });
+                    if status == "ok" {
+                        passed_tests += 1;
+                    }
+
+                    tests.push(TestResult {
+                        name,
+                        status,
+                        message: None,
+                        line_no: None,
+                        execution_time,
+                        score,
+                    });
+                }
+                Some("suite") => {
+                    if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
+                        total_tests += test_count;
+                    }
+                }
+                _ => {}
             }
         }
     }
 
+    let status = if passed_tests == total_tests { "pass" } else { "fail" };
+    let score = (passed_tests as f32 / total_tests as f32 * max_score as f32).round() as i32;
+
     let results = Results {
         version: 1,
-        status: if tests.iter().all(|t| t.status == "pass") { "pass".to_string() } else { "fail".to_string() },
+        status: status.to_string(),
         tests,
     };
 
