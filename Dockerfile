@@ -6,6 +6,10 @@ RUN apt-get update \
  && apt-get install coreutils -y \
  && rm -rf /var/lib/apt/lists/*
 
+ RUN rustup toolchain install nightly \
+ && rustup default nightly
+
+
 COPY . /opt/test-runner
 WORKDIR /opt/test-runner
 
