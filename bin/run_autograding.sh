@@ -1,6 +1,6 @@
 #! /bin/sh
 
-root="."
+root="/opt/test-runner"
 export RUST_BACKTRACE=1
 
 mkdir -p autograding_output
