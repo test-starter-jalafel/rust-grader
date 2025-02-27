@@ -26,6 +26,7 @@ while [ $# -gt 0 ]; do
 done
 
 TIMEOUT=$((TIMEOUT * 60))
+echo "SOMETHING IS HAPPENING!"
 echo "TIMEOUT is $TIMEOUT seconds"
 echo "MAX_SCORE is $MAX_SCORE"
 
