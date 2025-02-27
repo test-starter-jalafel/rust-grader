@@ -124,13 +124,17 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
                         continue;
                     }
                     let name = event.get("name").and_then(|n| n.as_str()).unwrap_or("").to_string();
-                    let status = event.get("event").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
+                    let event_status = event.get("event").and_then(|s| s.as_str()).unwrap_or("fail").to_string();
                     let execution_time = event.get("exec_time").and_then(|t| t.as_str()).unwrap_or("0ms").to_string();
-                    let score = if status == "ok" { 1 } else { 0 };
+                    let score = if event_status == "ok" { 1 } else { 0 };
 
-                    if status == "ok" {
+                    let status = if event_status == "ok" { "pass".to_string() } else { "fail".to_string() };
+
+                    if event_status == "ok" {
                         passed_tests += 1;
                     }
+
+                    total_tests += 1;
 
                     tests.push(TestResult {
                         name,
@@ -140,14 +144,6 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
                         execution_time,
                         score,
                     });
-                }
-                Some("suite") => {
-                    if event.get("event").and_then(|e| e.as_str()) == Some("started") {
-                        continue;
-                    }
-                    if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
-                        total_tests += test_count;
-                    }
                 }
                 _ => {}
             }
