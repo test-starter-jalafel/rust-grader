@@ -139,8 +139,10 @@ fn run_tests(input: &str, output: &str, max_score: i32, cargo_args: &[&str]) {
                     });
                 }
                 Some("suite") => {
-                    if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
-                        total_tests += test_count;
+                    if event.get("event").and_then(|e| e.as_str()) == Some("started") {
+                        if let Some(test_count) = event.get("test_count").and_then(|tc| tc.as_u64()) {
+                            total_tests += test_count;
+                        }
                     }
                 }
                 _ => {}
